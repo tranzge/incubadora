@@ -1,2 +1,0 @@
-# incubadora
-Mis proyectos
