@@ -178,7 +178,7 @@
                     // REGLA OXXO
                     if (rfc === "CCO8605231N4" || clave.startsWith("9010") || desc.includes("CONSUMO") || desc.includes("ALIMENTOS") || desc.includes("COMIDA")) sub = "COMIDA";
                     else if (clave.startsWith("9011") || desc.includes("HOTEL")) sub = "HOTEL";
-                    else if (clave === "93161700" || desc.includes("CASETA")) sub = "CASETA";
+                    else if (clave === "93161700" || desc.includes("PEAJE")) sub = "CASETA";
                     else if (clave === "15101514" || desc.includes("GASOL")) sub = "GASOLINA";
                 }
                 return { id: Math.random().toString(36).substr(2, 9), sub, rfc, fecha, subtotal, iva, total };
