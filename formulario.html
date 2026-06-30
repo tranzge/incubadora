@@ -68,9 +68,9 @@
         <p class="text-sm">&copy; 2026 CANACINTRA Jóvenes. Portafolio Automatizado Integrado.</p>
     </footer>
 
-    <script>
-        // ⚠️ REEMPLAZA ESTO CON TU ENLACE DE GOOGLE SHEETS EN FORMATO CSV
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_60HmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
+<script>
+        // Enlace de Google Sheets en formato CSV con terminación output=csv
+        const SHEET_CSV_URL = 'TU_ENLACE_DE_GOOGLE_SHEETS_AQUI_CON_OUTPUT_CSV';
         let todosLosEmprendimientos = [];
 
         async function cargarDirectorio() {
@@ -78,29 +78,37 @@
                 const response = await fetch(SHEET_CSV_URL);
                 const data = await response.text();
                 
-                // Dividir filas y saltarse el encabezado
-                const filas = data.split('\n').slice(1);
+                // Corrección de saltos de línea y limpieza de retornos de carro (\r)
+                const filas = data.replace(/\r/g, '').split('\n').slice(1);
                 const categoriasUnicas = new Set();
+
+                // Limpiar el array por si acaso hay recargas directas
+                todosLosEmprendimientos = [];
 
                 filas.forEach(fila => {
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 7) return; // Validación de fila con datos suficientes
+                    if (columnas.length < 6) return; // Validación mínima de columnas
+
+                    // Capturar y limpiar el valor del logo
+                    let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
+
+                    // 💡 VALIDACIÓN: Si el link está vacío, no es un link o no hay nada, ponemos una imagen de respaldo fija
+                    if (!rawLogo || rawLogo === '' || rawLogo.length < 10) {
+                        rawLogo = 'https://via.placeholder.com/300x300/f1f5f9/64748b?text=CANACINTRA';
+                    } else if (rawLogo.includes('drive.google.com')) {
+                        // Conversión de URLs de Google Drive para visualización directa
+                        const fileId = rawLogo.match(/id=([^&]+)/) || rawLogo.match(/\/d\/([^/]+)/);
+                        if (fileId) rawLogo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
+                    }
 
                     const item = {
-                        // Mapeo corregido adaptado a tus columnas actuales (A: Marca, B: Correo, C: Socio...)
-                        socio: columnas[2]?.replace(/"/g, '').trim() || '',       // Columna C
-                        empresa: columnas[3]?.replace(/"/g, '').trim() || '',     // Columna D
-                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General', // Columna E
-                        descripcion: columnas[5]?.replace(/"/g, '').trim() || '',  // Columna F
-                        logo: columnas[6]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300?text=Sin+Logo', // Columna G
-                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'    // Columna H
+                        socio: columnas[2]?.replace(/"/g, '').trim() || '',       
+                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Anónima',     
+                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General', 
+                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',  
+                        logo: rawLogo, 
+                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'    
                     };
-
-                    // Hack para visualizar URL de Google Drive de manera directa
-                    if (item.logo.includes('drive.google.com')) {
-                        const fileId = item.logo.match(/id=([^&]+)/) || item.logo.match(/\/d\/([^/]+)/);
-                        if (fileId) item.logo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
-                    }
 
                     todosLosEmprendimientos.push(item);
                     if(item.giro) categoriasUnicas.add(item.giro);
@@ -120,6 +128,10 @@
 
         function generarBotonesFiltros(categorias) {
             const contenedor = document.getElementById('category-filters');
+            // Limpiar dinámicos anteriores excepto el botón 'Todos'
+            const botonesExistentes = contenedor.querySelectorAll('.filter-btn:not([onclick*="TODOS"])');
+            botonesExistentes.forEach(btn => btn.remove());
+
             categorias.forEach(cat => {
                 if(!cat) return;
                 const btn = document.createElement('button');
@@ -143,9 +155,8 @@
                 const html = `
                     <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                         <div>
-                            <!-- Contenedor del Logo con Proporción Fija -->
                             <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
-                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo" onerror="this.src='https://via.placeholder.com/300?text=Logo+Invalido'">
+                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo de ${item.empresa}" onerror="this.src='https://via.placeholder.com/300x300/f1f5f9/64748b?text=Sin+Logo'">
                             </div>
                             <div class="p-5">
                                 <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-2">
@@ -168,7 +179,6 @@
         }
 
         function filtrarCategoria(categoria, botonSeleccionado) {
-            // Estilizar botones para denotar selección
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
             });
