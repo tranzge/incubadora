@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Virtual | CANACINTRA Jóvenes</title>
+    <!-- Tailwind CSS v4 para diseño moderno -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        /* Forzar simetría estricta en las descripciones */
+        .line-clamp-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+            height: 4.5em; /* Asegura misma altura de texto para todas las tarjetas */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <!-- SECCIÓN INTRO (HERO SECTOR) -->
+    <header class="bg-gradient-to-r from-blue-950 to-indigo-900 text-white py-16 px-4 shadow-lg text-center">
+        <div class="max-w-4xl mx-auto">
+            <span class="bg-blue-500/20 text-blue-300 text-xs uppercase font-bold tracking-widest px-3 py-1 rounded-full border border-blue-400/30">
+                Ecosistema de Emprendimiento Local
+            </span>
+            <h1 class="text-4xl md:text-5xl font-extrabold mt-4 mb-4 tracking-tight">
+                Portafolio de Innovación y Negocios
+            </h1>
+            <p class="text-lg text-slate-300 font-light max-w-2xl mx-auto leading-relaxed">
+                Conoce, conecta y genera alianzas comerciales con las empresas y startups lideradas por los jóvenes talentos de la cámara. Un directorio dinámico en tiempo real.
+            </p>
+        </div>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        
+        <!-- BOTONES DE FILTRADO POR CATEGORÍA -->
+        <div class="mb-10 text-center">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Filtrar por sector industrial</p>
+            <div id="category-filters" class="flex flex-wrap justify-center gap-2">
+                <button onclick="filtrarCategoria('TODOS')" class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
+                    Todos
+                </button>
+                <!-- Las categorías del Sheets se generarán aquí automáticamente -->
+            </div>
+        </div>
+
+        <!-- ESTADO DE CARGA -->
+        <div id="loading" class="text-center text-slate-500 py-12 text-lg animate-pulse">
+            Consumiendo registros del Sheets en tiempo real...
+        </div>
+
+        <!-- GALERÍA DE TARJETAS -->
+        <div id="directorio" class="card-grid hidden">
+            <!-- Inyección dinámica mediante JS -->
+        </div>
+    </main>
+
+    <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-16 bg-white">
+        <p class="text-sm">&copy; 2026 CANACINTRA Jóvenes. Portafolio Automatizado Integrado.</p>
+    </footer>
+
+    <script>
+        // ⚠️ REEMPLAZA ESTO CON TU ENLACE DE GOOGLE SHEETS EN FORMATO CSV
+        const SHEET_CSV_URL = 'TU_ENLACE_DE_GOOGLE_SHEETS_AQUI_CON_OUTPUT_CSV';
+        let todosLosEmprendimientos = [];
+
+        async function cargarDirectorio() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                const data = await response.text();
+                
+                // Dividir filas y saltarse el encabezado
+                const filas = data.split('\n').slice(1);
+                const categoriasUnicas = new Set();
+
+                filas.forEach(fila => {
+                    const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (columnas.length < 7) return; // Validación de fila con datos suficientes
+
+                    const item = {
+                        // Mapeo corregido adaptado a tus columnas actuales (A: Marca, B: Correo, C: Socio...)
+                        socio: columnas[2]?.replace(/"/g, '').trim() || '',       // Columna C
+                        empresa: columnas[3]?.replace(/"/g, '').trim() || '',     // Columna D
+                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General', // Columna E
+                        descripcion: columnas[5]?.replace(/"/g, '').trim() || '',  // Columna F
+                        logo: columnas[6]?.replace(/"/g, '').trim() || 'https://via.placeholder.com/300?text=Sin+Logo', // Columna G
+                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'    // Columna H
+                    };
+
+                    // Hack para visualizar URL de Google Drive de manera directa
+                    if (item.logo.includes('drive.google.com')) {
+                        const fileId = item.logo.match(/id=([^&]+)/) || item.logo.match(/\/d\/([^/]+)/);
+                        if (fileId) item.logo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
+                    }
+
+                    todosLosEmprendimientos.push(item);
+                    if(item.giro) categoriasUnicas.add(item.giro);
+                });
+
+                generarBotonesFiltros(categoriasUnicas);
+                renderizarTarjetas(todosLosEmprendimientos);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('directorio').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerText = 'Fallo en la sincronización con Google Sheets.';
+            }
+        }
+
+        function generarBotonesFiltros(categorias) {
+            const contenedor = document.getElementById('category-filters');
+            categorias.forEach(cat => {
+                if(!cat) return;
+                const btn = document.createElement('button');
+                btn.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
+                btn.innerText = cat;
+                btn.onclick = () => filtrarCategoria(cat, btn);
+                contenedor.appendChild(btn);
+            });
+        }
+
+        function renderizarTarjetas(items) {
+            const contenedor = document.getElementById('directorio');
+            contenedor.innerHTML = '';
+
+            if(items.length === 0) {
+                contenedor.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No hay negocios en esta categoría.</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const html = `
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                        <div>
+                            <!-- Contenedor del Logo con Proporción Fija -->
+                            <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo" onerror="this.src='https://via.placeholder.com/300?text=Logo+Invalido'">
+                            </div>
+                            <div class="p-5">
+                                <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-2">
+                                    ${item.giro}
+                                </span>
+                                <h2 class="text-lg font-bold text-slate-900 mb-0.5 truncate">${item.empresa}</h2>
+                                <p class="text-xs text-slate-400 mb-3">Socio: ${item.socio}</p>
+                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description">${item.descripcion}</p>
+                            </div>
+                        </div>
+                        <div class="p-5 pt-0">
+                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-950 hover:bg-blue-900 text-white font-medium py-2 px-4 rounded-lg transition-colors text-xs tracking-wide shadow-sm">
+                                Enlace Comercial / Redes
+                            </a>
+                        </div>
+                    </div>
+                `;
+                contenedor.innerHTML += html;
+            });
+        }
+
+        function filtrarCategoria(categoria, botonSeleccionado) {
+            // Estilizar botones para denotar selección
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
+            });
+            
+            if(botonSeleccionado) {
+                botonSeleccionado.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+            } else {
+                document.getElementById('category-filters').firstElementChild.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+            }
+
+            if (categoria === 'TODOS') {
+                renderizarTarjetas(todosLosEmprendimientos);
+            } else {
+                const filtrados = todosLosEmprendimientos.filter(item => item.giro === categoria);
+                renderizarTarjetas(filtrados);
+            }
+        }
+
+        window.onload = cargarDirectorio;
+    </script>
+</body>
+</html>
