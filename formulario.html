@@ -3,78 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio de Innovación | CANACINTRA Jóvenes</title>
+    <title>Portafolio de Innovación | Jóvenes CANACINTRA Cajeme</title>
+    <!-- Tailwind CSS v4 para un rendimiento y estilizado de última generación -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Tipografía única, corporativa y humana -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .card-grid {
+        :root {
+            --brand-navy: #1a2358;
+            --brand-red: #e2402e;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        .bento-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 28px;
         }
         .line-clamp-description {
             display: -webkit-box;
             -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;  
+            -webkit-box-orient: vertical;
             overflow: hidden;
             height: 4.5em;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forward;
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
+<body class="bg-slate-50 text-slate-900 antialiased min-h-screen selection:bg-[var(--brand-navy)]/10 selection:text-[var(--brand-navy)]">
 
-    <header class="bg-white border-b border-slate-200/80 py-16 px-4 text-center shadow-xs">
-        <div class="max-w-4xl mx-auto flex flex-col items-center">
-            
-            <div class="mb-4 flex items-center space-x-3 text-blue-900">
-                <svg class="h-10 w-auto fill-current text-blue-900" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20,10 L45,10 L55,30 L45,50 L20,50 L10,30 Z M27,18 L38,18 L43,30 L38,42 L27,42 L22,30 Z" />
-                    <text x="65" y="32" font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="currentColor">CANACINTRA</text>
-                    <text x="65" y="47" font-family="Arial, sans-serif" font-weight="700" font-size="11" fill="#0284c7" letter-spacing="2">JÓVENES</text>
-                </svg>
+    <!-- ENCABEZADO INSTITUCIONAL -->
+    <header class="relative bg-white py-20 px-6 text-center border-b border-slate-100">
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-50/40 to-white pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto flex flex-col items-center relative z-10">
+            <!-- Identidad: Logo + Nombre de la delegación -->
+            <div class="mb-8 flex items-center gap-4">
+                <img src="cropped-canacintra.png" class="h-14 w-auto" alt="CANACINTRA">
+                <div class="text-left">
+                    <p class="text-xl md:text-2xl font-extrabold tracking-tight leading-none">
+                        <span class="text-[var(--brand-red)]">Jóvenes</span>
+                        <span class="text-[var(--brand-navy)]">CANACINTRA</span>
+                    </p>
+                    <p class="text-xs md:text-sm font-semibold uppercase tracking-widest text-[var(--brand-red)] mt-1.5">
+                        Cajeme
+                    </p>
+                </div>
             </div>
-            
-            <span class="bg-blue-50 text-blue-700 text-[11px] uppercase font-bold tracking-widest px-3 py-1 rounded-md border border-blue-200/60 shadow-xs">
-                Ecosistema de Emprendimiento Local
-            </span>
-            <h1 class="text-3xl md:text-5xl font-black mt-4 mb-3 tracking-tight text-slate-900">
+
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-[var(--brand-navy)] mb-5 max-w-2xl leading-tight">
                 Portafolio de Innovación y Negocios
             </h1>
             <p class="text-base md:text-lg text-slate-500 font-normal max-w-2xl leading-relaxed">
-                Conoce y conecta de forma estratégica con las empresas lideradas por los jóvenes talentos de la cámara.
+                Conoce y conecta con las empresas lideradas por los jóvenes talentos de la cámara. Un espacio diseñado para impulsar alianzas estratégicas y el crecimiento comercial de nuestra comunidad local.
             </p>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-12">
-        
-        <div class="max-w-md mx-auto mb-10">
-            <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="🔍 Buscar por nombre de empresa..." class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all text-sm">
+    <!-- ÁREA DE CONTROL INTERACTIVA -->
+    <main class="max-w-7xl mx-auto px-6 py-16">
+
+        <!-- BUSCADOR -->
+        <div class="max-w-xl mx-auto mb-12">
+            <div class="relative group">
+                <div class="absolute inset-0 bg-[var(--brand-navy)]/5 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
+                <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="Buscar por empresa, sector o palabra clave..." class="relative w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-slate-200 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[var(--brand-navy)]/15 focus:border-[var(--brand-navy)]/60 transition-all duration-200 placeholder:text-slate-400">
+            </div>
         </div>
 
-        <div class="mb-12 text-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Filtrar por sector industrial</span>
-            <div id="category-filters" class="flex flex-wrap justify-center gap-2">
-                <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
-                    Todos
+        <!-- FILTROS DE CATEGORÍA -->
+        <div class="mb-14 text-center">
+            <div id="category-filters" class="flex flex-wrap justify-center gap-2.5">
+                <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-[var(--brand-navy)] text-white shadow-sm transition-all duration-200 cursor-pointer">
+                    Todos los sectores
                 </button>
             </div>
         </div>
 
-        <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium animate-pulse">
-            Cargando ecosistema local...
+        <!-- INDICADOR DE CARGA -->
+        <div id="loading" class="text-center text-slate-400 py-20 text-sm font-medium">
+            Cargando el directorio de empresas...
         </div>
 
-        <div id="directorio" class="card-grid hidden">
-            </div>
+        <!-- GALERÍA ESTILO BENTO GRID -->
+        <div id="directorio" class="bento-grid hidden">
+            <!-- Las tarjetas se inyectan dinámicamente aquí -->
+        </div>
     </main>
 
-    <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-20 bg-white">
-        <p class="text-xs tracking-wider uppercase font-medium">&copy; 2026 CANACINTRA Jóvenes. Portafolio Optimizado Integrado.</p>
+    <!-- PIE DE PÁGINA -->
+    <footer class="text-center py-12 text-slate-400 border-t border-slate-200/60 mt-28 bg-white">
+        <p class="text-xs font-medium text-slate-400">&copy; 2026 Jóvenes CANACINTRA Cajeme. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        // 💾 BASE DE DATOS INYECTADA DIRECTAMENTE (Plan C - Blindado de Workspace)
-        // Puedes agregar más registros aquí duplicando un bloque { ... } separado por comas
+        // Base de Datos Estática de Alta Disponibilidad
         const baseDeDatosLocal = [
             {
                 socio: 'Jorge Huerta',
@@ -98,7 +132,6 @@
         let categoriaActual = 'TODOS';
 
         function cargarDirectorio() {
-            // Simulamos una carga de red rápida para mantener la experiencia premium
             setTimeout(() => {
                 todosLosEmprendimientos = baseDeDatosLocal;
                 const categoriasUnicas = new Set();
@@ -112,7 +145,7 @@
 
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('directorio').classList.remove('hidden');
-            }, 400);
+            }, 300);
         }
 
         function generarBotonesFiltros(categorias) {
@@ -123,7 +156,7 @@
             categorias.forEach(cat => {
                 if(!cat) return;
                 const btn = document.createElement('button');
-                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
+                btn.className = "filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-white text-slate-600 border border-slate-200 hover:border-[var(--brand-navy)]/30 hover:text-[var(--brand-navy)] transition-all duration-200 cursor-pointer shadow-sm";
                 btn.innerText = cat;
                 btn.onclick = () => filtrarCategoria(cat, btn);
                 contenedor.appendChild(btn);
@@ -135,29 +168,29 @@
             contenedor.innerHTML = '';
 
             if(items.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-sm">No se encontraron emprendimientos que coincidan.</div>';
+                contenedor.innerHTML = '<div class="col-span-full text-center py-16 text-slate-400 text-sm font-medium animate-fade-in">No se encontraron emprendimientos con los criterios de búsqueda actuales.</div>';
                 return;
             }
 
             items.forEach(item => {
                 const html = `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/70 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-blue-200">
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/70 hover:border-[var(--brand-navy)]/20 group animate-fade-in">
                         <div>
                             <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
-                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo corporativo" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
+                                <img class="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105" src="${item.logo}" alt="Corporate Identity" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
                             </div>
-                            <div class="p-6">
-                                <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-3 border border-blue-100">
+                            <div class="p-7">
+                                <span class="inline-block px-3 py-1 text-[11px] font-semibold uppercase tracking-wide rounded-full bg-[var(--brand-navy)]/6 text-[var(--brand-navy)] mb-4">
                                     ${item.giro}
                                 </span>
-                                <h2 class="text-xl font-bold text-slate-900 mb-0.5 tracking-tight truncate">${item.empresa}</h2>
-                                <p class="text-xs text-slate-400 mb-4 font-medium">Socio: <span class="text-slate-600">${item.socio}</span></p>
-                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description font-normal">${item.descripcion}</p>
+                                <h2 class="text-xl font-bold text-slate-900 mb-1 tracking-tight truncate">${item.empresa}</h2>
+                                <p class="text-xs text-slate-400 mb-4 font-normal">Socio: <span class="text-slate-700 font-medium">${item.socio}</span></p>
+                                <p class="text-slate-500 text-sm leading-relaxed line-clamp-description font-normal">${item.descripcion}</p>
                             </div>
                         </div>
-                        <div class="p-6 pt-0">
-                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 text-xs uppercase tracking-wide shadow-xs">
-                                Enlace Comercial / Redes
+                        <div class="p-7 pt-0">
+                            <a href="${item.contacto}" target="_blank" class="flex items-center justify-center gap-2 w-full bg-slate-50 group-hover:bg-[var(--brand-navy)] text-slate-700 group-hover:text-white font-semibold py-3.5 px-4 rounded-xl transition-all duration-300 text-sm border border-slate-200 group-hover:border-[var(--brand-navy)]">
+                                Ver Contacto
                             </a>
                         </div>
                     </div>
@@ -169,20 +202,20 @@
         function filtrarCategoria(categoria, botonSeleccionado) {
             categoriaActual = categoria;
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
+                btn.className = "filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-white text-slate-600 border border-slate-200 hover:border-[var(--brand-navy)]/30 hover:text-[var(--brand-navy)] transition-all duration-200 cursor-pointer shadow-sm";
             });
-            
+
             if(botonSeleccionado) {
-                botonSeleccionado.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                botonSeleccionado.className = "filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-[var(--brand-navy)] text-white shadow-sm transition-all duration-200 cursor-pointer";
             } else {
-                document.getElementById('btn-todos').className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                document.getElementById('btn-todos').className = "filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-[var(--brand-navy)] text-white shadow-sm transition-all duration-200 cursor-pointer";
             }
 
             ejecutarFiltroCombinado();
         }
 
-        function buscarEmpresa() { 
-            ejecutarFiltroCombinado(); 
+        function buscarEmpresa() {
+            ejecutarFiltroCombinado();
         }
 
         function ejecutarFiltroCombinado() {
@@ -194,11 +227,23 @@
             }
 
             if (textoBusqueda !== '') {
-                filtrados = filtrados.filter(item => item.empresa.toLowerCase().includes(textoBusqueda));
+                filtrados = filtrados.filter(item =>
+                    item.empresa.toLowerCase().includes(textoBusqueda) ||
+                    item.descripcion.toLowerCase().includes(textoBusqueda) ||
+                    item.socio.toLowerCase().includes(textoBusqueda)
+                );
             }
 
             renderizarTarjetas(filtrados);
         }
+
+        // Acceso rápido por teclado (Ctrl + K o Cmd + K) para enfocar el buscador
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('search-input').focus();
+            }
+        });
 
         window.onload = cargarDirectorio;
     </script>
