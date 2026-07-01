@@ -43,7 +43,7 @@
                 Portafolio de Innovación y Negocios
             </h1>
             <p class="text-base md:text-lg text-slate-500 font-normal max-w-2xl leading-relaxed">
-                Conoce y conecta de forma estratégica con las empresas lideradas por los jóvenes talentos de la cámara[cite: 1].
+                Conoce y conecta de forma estratégica con las empresas lideradas por los jóvenes talentos de la cámara.
             </p>
         </div>
     </header>
@@ -77,14 +77,14 @@
     </footer>
 
     <script>
-        // Tu URL real y validada de Google Sheets
+        // URL real extraída de tu panel de publicación
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_6OHmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
         let todosLosEmprendimientos = [];
 
         async function cargarDirectorio() {
             try {
                 const response = await fetch(SHEET_CSV_URL);
-                if (!response.ok) throw new Error('Error en red');
+                if (!response.ok) throw new Error('Error en la descarga del CSV');
                 const data = await response.text();
                 
                 const filas = data.replace(/\r/g, '').split('\n').slice(1);
@@ -94,11 +94,11 @@
                 filas.forEach(fila => {
                     if (!fila.trim()) return;
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 5) return; // Validación elástica por si faltan campos al final
+                    if (columnas.length < 6) return; 
 
                     let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
 
-                    // Imagen de respaldo ejecutiva si está vacía
+                    // Imagen corporativa de respaldo si el campo está vacío
                     if (!rawLogo || rawLogo.length < 10) {
                         rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
@@ -126,10 +126,10 @@
                 document.getElementById('directorio').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error detallado:', error);
+                console.error('Error detectado:', error);
                 document.getElementById('loading').innerHTML = `
-                    <div class="text-amber-700 bg-amber-50 p-4 rounded-xl inline-block border border-amber-200">
-                        <strong>Aviso de Visualización Local:</strong> Si estás abriendo el archivo HTML directamente desde tu explorador, el navegador puede bloquear la sincronización temporalmente por seguridad. Sube este archivo a tu GitHub Pages para que corra al 100% en vivo.
+                    <div class="text-red-700 bg-red-50 p-4 rounded-xl inline-block border border-red-200 text-xs font-mono">
+                        <strong>Fallo de sincronización activo.</strong> Verifique que la constante SHEET_CSV_URL mantenga las comillas y la estructura de publicación intacta.
                     </div>`;
             }
         }
