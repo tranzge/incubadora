@@ -3,109 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directorio Virtual | CANACINTRA Jóvenes</title>
-    <!-- Tailwind CSS v4 para diseño moderno -->
+    <title>Portafolio de Innovación | CANACINTRA Jóvenes</title>
+    <!-- Tailwind CSS v4 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 28px;
         }
-        /* Forzar simetría estricta en las descripciones */
         .line-clamp-description {
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;  
             overflow: hidden;
-            height: 4.5em; /* Asegura misma altura de texto para todas las tarjetas */
+            height: 4.5em;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans">
+<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
 
-    <!-- SECCIÓN INTRO (HERO SECTOR) -->
-    <header class="bg-gradient-to-r from-blue-950 to-indigo-900 text-white py-16 px-4 shadow-lg text-center">
-        <div class="max-w-4xl mx-auto">
-            <span class="bg-blue-500/20 text-blue-300 text-xs uppercase font-bold tracking-widest px-3 py-1 rounded-full border border-blue-400/30">
+    <!-- ENCABEZADO CORPORATIVO LIMPIO -->
+    <header class="bg-white border-b border-slate-200/80 py-16 px-4 text-center shadow-xs">
+        <div class="max-w-4xl mx-auto flex flex-col items-center">
+            
+            <!-- Logo Minimalista CANACINTRA -->
+            <div class="mb-4 flex items-center space-x-3 text-blue-900">
+                <svg class="h-10 w-auto fill-current text-blue-900" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20,10 L45,10 L55,30 L45,50 L20,50 L10,30 Z M27,18 L38,18 L43,30 L38,42 L27,42 L22,30 Z" />
+                    <text x="65" y="32" font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="currentColor">CANACINTRA</text>
+                    <text x="65" y="47" font-family="Arial, sans-serif" font-weight="700" font-size="11" fill="#0284c7" letter-spacing="2">JÓVENES</text>
+                </svg>
+            </div>
+            
+            <span class="bg-blue-50 text-blue-700 text-[11px] uppercase font-bold tracking-widest px-3 py-1 rounded-md border border-blue-200/60 shadow-xs">
                 Ecosistema de Emprendimiento Local
             </span>
-            <h1 class="text-4xl md:text-5xl font-extrabold mt-4 mb-4 tracking-tight">
+            <h1 class="text-3xl md:text-5xl font-black mt-4 mb-3 tracking-tight text-slate-900">
                 Portafolio de Innovación y Negocios
             </h1>
-            <p class="text-lg text-slate-300 font-light max-w-2xl mx-auto leading-relaxed">
-                Conoce, conecta y genera alianzas comerciales con las empresas y startups lideradas por los jóvenes talentos de la cámara. Un directorio dinámico en tiempo real.
+            <p class="text-base md:text-lg text-slate-500 font-normal max-w-2xl leading-relaxed">
+                Conoce y conecta de forma estratégica con las empresas lideradas por los jóvenes talentos de la cámara[cite: 1].
             </p>
         </div>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CONTENEDOR DE FILTROS Y TARJETAS -->
     <main class="max-w-7xl mx-auto px-4 py-12">
         
-        <!-- BOTONES DE FILTRADO POR CATEGORÍA -->
-        <div class="mb-10 text-center">
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Filtrar por sector industrial</p>
+        <!-- FILTROS POR SECTOR -->
+        <div class="mb-12 text-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Filtrar por sector industrial</span>
             <div id="category-filters" class="flex flex-wrap justify-center gap-2">
-                <button onclick="filtrarCategoria('TODOS')" class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
+                <button onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
                     Todos
                 </button>
-                <!-- Las categorías del Sheets se generarán aquí automáticamente -->
             </div>
         </div>
 
-        <!-- ESTADO DE CARGA -->
-        <div id="loading" class="text-center text-slate-500 py-12 text-lg animate-pulse">
-            Consumiendo registros del Sheets en tiempo real...
+        <!-- INDICADOR DE CARGA -->
+        <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium animate-pulse">
+            Sincronizando con Google Sheets en tiempo real...
         </div>
 
-        <!-- GALERÍA DE TARJETAS -->
+        <!-- GALERÍA -->
         <div id="directorio" class="card-grid hidden">
-            <!-- Inyección dinámica mediante JS -->
+            <!-- JS inyectará las tarjetas aquí -->
         </div>
     </main>
 
-    <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-16 bg-white">
-        <p class="text-sm">&copy; 2026 CANACINTRA Jóvenes. Portafolio Automatizado Integrado.</p>
+    <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-20 bg-white">
+        <p class="text-xs tracking-wider uppercase font-medium">&copy; 2026 CANACINTRA Jóvenes. Sincronización Automatizada.</p>
     </footer>
 
-<script>
-        // Enlace de Google Sheets en formato CSV con terminación output=csv
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Dr5johlcPcBb3h2X5DmigyqhyPhoOHWYW-eB1fqcIpk/edit?usp=sharing';
+    <script>
+        // Tu URL real y validada de Google Sheets
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_6OHmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
         let todosLosEmprendimientos = [];
 
         async function cargarDirectorio() {
             try {
                 const response = await fetch(SHEET_CSV_URL);
+                if (!response.ok) throw new Error('Error en red');
                 const data = await response.text();
                 
-                // Corrección de saltos de línea y limpieza de retornos de carro (\r)
                 const filas = data.replace(/\r/g, '').split('\n').slice(1);
                 const categoriasUnicas = new Set();
-
-                // Limpiar el array por si acaso hay recargas directas
                 todosLosEmprendimientos = [];
 
                 filas.forEach(fila => {
+                    if (!fila.trim()) return;
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 6) return; // Validación mínima de columnas
+                    if (columnas.length < 5) return; // Validación elástica por si faltan campos al final
 
-                    // Capturar y limpiar el valor del logo
                     let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
 
-                    // 💡 VALIDACIÓN: Si el link está vacío, no es un link o no hay nada, ponemos una imagen de respaldo fija
-                    if (!rawLogo || rawLogo === '' || rawLogo.length < 10) {
-                        rawLogo = 'https://via.placeholder.com/300x300/f1f5f9/64748b?text=CANACINTRA';
+                    // Imagen de respaldo ejecutiva si está vacía
+                    if (!rawLogo || rawLogo.length < 10) {
+                        rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
-                        // Conversión de URLs de Google Drive para visualización directa
                         const fileId = rawLogo.match(/id=([^&]+)/) || rawLogo.match(/\/d\/([^/]+)/);
                         if (fileId) rawLogo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
                     }
 
                     const item = {
-                        socio: columnas[2]?.replace(/"/g, '').trim() || '',       
-                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Anónima',     
+                        socio: columnas[2]?.replace(/"/g, '').trim() || 'Socio Activo',       
+                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Comercial',     
                         giro: columnas[4]?.replace(/"/g, '').trim() || 'General', 
-                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',  
+                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción corporativa registrada.',  
                         logo: rawLogo, 
                         contacto: columnas[7]?.replace(/"/g, '').trim() || '#'    
                     };
@@ -121,21 +126,23 @@
                 document.getElementById('directorio').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('loading').innerText = 'Fallo en la sincronización con Google Sheets.';
+                console.error('Error detallado:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-amber-700 bg-amber-50 p-4 rounded-xl inline-block border border-amber-200">
+                        <strong>Aviso de Visualización Local:</strong> Si estás abriendo el archivo HTML directamente desde tu explorador, el navegador puede bloquear la sincronización temporalmente por seguridad. Sube este archivo a tu GitHub Pages para que corra al 100% en vivo.
+                    </div>`;
             }
         }
 
         function generarBotonesFiltros(categorias) {
             const contenedor = document.getElementById('category-filters');
-            // Limpiar dinámicos anteriores excepto el botón 'Todos'
             const botonesExistentes = contenedor.querySelectorAll('.filter-btn:not([onclick*="TODOS"])');
             botonesExistentes.forEach(btn => btn.remove());
 
             categorias.forEach(cat => {
                 if(!cat) return;
                 const btn = document.createElement('button');
-                btn.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
+                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
                 btn.innerText = cat;
                 btn.onclick = () => filtrarCategoria(cat, btn);
                 contenedor.appendChild(btn);
@@ -147,28 +154,28 @@
             contenedor.innerHTML = '';
 
             if(items.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No hay negocios en esta categoría.</div>';
+                contenedor.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No hay registros en esta categoría.</div>';
                 return;
             }
 
             items.forEach(item => {
                 const html = `
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-100 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/70 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-blue-200">
                         <div>
                             <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
-                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo de ${item.empresa}" onerror="this.src='https://via.placeholder.com/300x300/f1f5f9/64748b?text=Sin+Logo'">
+                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo corporativo" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
                             </div>
-                            <div class="p-5">
-                                <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-2">
+                            <div class="p-6">
+                                <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-3 border border-blue-100">
                                     ${item.giro}
                                 </span>
-                                <h2 class="text-lg font-bold text-slate-900 mb-0.5 truncate">${item.empresa}</h2>
-                                <p class="text-xs text-slate-400 mb-3">Socio: ${item.socio}</p>
-                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description">${item.descripcion}</p>
+                                <h2 class="text-xl font-bold text-slate-900 mb-0.5 tracking-tight truncate">${item.empresa}</h2>
+                                <p class="text-xs text-slate-400 mb-4 font-medium">Socio: <span class="text-slate-600">${item.socio}</span></p>
+                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description font-normal">${item.descripcion}</p>
                             </div>
                         </div>
-                        <div class="p-5 pt-0">
-                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-950 hover:bg-blue-900 text-white font-medium py-2 px-4 rounded-lg transition-colors text-xs tracking-wide shadow-sm">
+                        <div class="p-6 pt-0">
+                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 text-xs uppercase tracking-wide shadow-xs">
                                 Enlace Comercial / Redes
                             </a>
                         </div>
@@ -180,13 +187,13 @@
 
         function filtrarCategoria(categoria, botonSeleccionado) {
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
+                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
             });
             
             if(botonSeleccionado) {
-                botonSeleccionado.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                botonSeleccionado.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
             } else {
-                document.getElementById('category-filters').firstElementChild.className = "filter-btn px-4 py-2 text-sm font-medium rounded-full bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                document.getElementById('category-filters').firstElementChild.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
             }
 
             if (categoria === 'TODOS') {
