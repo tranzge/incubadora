@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMV Directorio | CANACINTRA Jóvenes</title>
+    <title>Portafolio | CANACINTRA Jóvenes</title>
+    <!-- Tailwind CSS v4 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .card-grid {
@@ -22,6 +23,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
 
+    <!-- ENCABEZADO -->
     <header class="bg-white border-b border-slate-200 py-12 px-4 text-center shadow-xs">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
             <span class="bg-blue-50 text-blue-700 text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-md border border-blue-100">
@@ -36,12 +38,15 @@
         </div>
     </header>
 
+    <!-- CONTENEDOR PRINCIPAL -->
     <main class="max-w-7xl mx-auto px-4 py-10">
         
+        <!-- BUSCADOR -->
         <div class="max-w-md mx-auto mb-8">
             <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="🔍 Buscar por nombre de empresa..." class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-900/20">
         </div>
 
+        <!-- FILTROS -->
         <div class="mb-10 text-center">
             <div id="category-filters" class="flex flex-wrap justify-center gap-2">
                 <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-blue-900 text-white cursor-pointer shadow-xs">
@@ -50,46 +55,43 @@
             </div>
         </div>
 
+        <!-- ESTADO DE CARGA / DIAGNÓSTICO -->
         <div id="loading" class="text-center text-slate-400 py-12 text-sm font-medium animate-pulse">
-            Cargando datos del ecosistema...
+            Sincronizando registros en vivo...
         </div>
 
+        <!-- GALERÍA -->
         <div id="directorio" class="card-grid hidden">
-            </div>
+            <!-- Tarjetas automáticas -->
+        </div>
     </main>
 
     <script>
-        // ID de tu documento real validado
-        const SPREADSHEET_ID = '1Dr5johlcPcBbh3h2X5DmigyhyPhoOHWYW-eB1fqclpk';
-        const GID = '1329152889';
-        
-        // Endpoint alternativo de Google (Mucho más rápido y estable que el CSV)
-        const URL_API = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
+        // URL universal por exportación nativa de Google Sheets
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Dr5johlcPcBbh3h2X5DmigyhyPhoOHWYW-eB1fqclpk/export?format=csv&gid=1329152889';
 
         let todosLosEmprendimientos = [];
         let categoriaActual = 'TODOS';
 
         async function cargarDirectorio() {
             try {
-                const response = await fetch(URL_API);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const response = await fetch(SHEET_CSV_URL);
+                if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
                 
-                const textoPlano = await response.text();
-                
-                // Limpiar el cascarón de texto que envuelve al JSON de Google
-                const jsonParseable = textoPlano.substring(textoPlano.indexOf("{"), textoPlano.lastIndexOf("}") + 1);
-                const datosData = JSON.parse(jsonParseable);
-                
-                const filas = datosData.table.rows;
+                const data = await response.text();
+                if (!data || data.trim().length === 0) throw new Error('El archivo llegó vacío.');
+
+                // Procesamiento limpio de filas y eliminación de retornos de carro
+                const filas = data.replace(/\r/g, '').split('\n').slice(1);
                 const categoriasUnicas = new Set();
                 todosLosEmprendimientos = [];
 
                 filas.forEach(fila => {
-                    const c = fila.c;
-                    if (!c || c.length < 4) return;
+                    if (!fila.trim()) return;
+                    const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (columnas.length < 6) return;
 
-                    // Mapeo seguro directo por posición de celda (v es el valor limpio de la celda)
-                    let rawLogo = c[6]?.v || '';
+                    let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
                     if (!rawLogo || rawLogo.length < 10) {
                         rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
@@ -98,12 +100,12 @@
                     }
 
                     const item = {
-                        socio: c[2]?.v || 'Socio Activo',
-                        empresa: c[3]?.v || 'Empresa Local',
-                        giro: c[4]?.v || 'General',
-                        descripcion: c[5]?.v || 'Sin descripción disponible.',
+                        socio: columnas[2]?.replace(/"/g, '').trim() || 'Socio Activo',
+                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Local',
+                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General',
+                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',
                         logo: rawLogo,
-                        contacto: c[7]?.v || '#'
+                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'
                     };
 
                     todosLosEmprendimientos.push(item);
@@ -121,7 +123,7 @@
                 document.getElementById('loading').innerHTML = `
                     <div class="bg-red-50 text-red-700 p-4 rounded-xl inline-block border border-red-100 text-xs font-mono">
                         <strong>Fallo de sincronización:</strong> ${error.message}<br>
-                        <span class="text-slate-400 text-[10px]">Revisa que el Sheets siga compartido como "Cualquier persona con el enlace puede ver".</span>
+                        <span class="text-slate-400 text-[10px]">Verifica los datos en tu GitHub Pages tras realizar el push.</span>
                     </div>`;
             }
         }
