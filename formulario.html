@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio de Innovación | CANACINTRA Jóvenes</title>
+    <title>PMV Directorio | CANACINTRA Jóvenes</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-            gap: 28px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
         }
         .line-clamp-description {
             display: -webkit-box;
@@ -22,82 +22,74 @@
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
 
-    <header class="bg-white border-b border-slate-200/80 py-16 px-4 text-center shadow-xs">
+    <header class="bg-white border-b border-slate-200 py-12 px-4 text-center shadow-xs">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
-            
-            <div class="mb-4 flex items-center space-x-3 text-blue-900">
-                <svg class="h-10 w-auto fill-current text-blue-900" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20,10 L45,10 L55,30 L45,50 L20,50 L10,30 Z M27,18 L38,18 L43,30 L38,42 L27,42 L22,30 Z" />
-                    <text x="65" y="32" font-family="Arial, sans-serif" font-weight="900" font-size="20" fill="currentColor">CANACINTRA</text>
-                    <text x="65" y="47" font-family="Arial, sans-serif" font-weight="700" font-size="11" fill="#0284c7" letter-spacing="2">JÓVENES</text>
-                </svg>
-            </div>
-            
-            <span class="bg-blue-50 text-blue-700 text-[11px] uppercase font-bold tracking-widest px-3 py-1 rounded-md border border-blue-200/60 shadow-xs">
-                Ecosistema de Emprendimiento Local
+            <span class="bg-blue-50 text-blue-700 text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-md border border-blue-100">
+                CANACINTRA JÓVENES
             </span>
-            <h1 class="text-3xl md:text-5xl font-black mt-4 mb-3 tracking-tight text-slate-900">
+            <h1 class="text-3xl md:text-4xl font-black mt-3 mb-2 tracking-tight text-slate-900">
                 Portafolio de Innovación y Negocios
             </h1>
-            <p class="text-base md:text-lg text-slate-500 font-normal max-w-2xl leading-relaxed">
-                Conoce y conecta de forma estratégica con las empresas lideradas por los jóvenes talentos de la cámara.
+            <p class="text-sm text-slate-500 max-w-xl">
+                Directorio automatizado en tiempo real conectado a Google Sheets.
             </p>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-12">
+    <main class="max-w-7xl mx-auto px-4 py-10">
         
-        <div class="max-w-md mx-auto mb-10">
-            <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="🔍 Buscar por nombre de empresa..." class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all text-sm">
+        <div class="max-w-md mx-auto mb-8">
+            <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="🔍 Buscar por nombre de empresa..." class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 shadow-xs text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-900/20">
         </div>
 
-        <div class="mb-12 text-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Filtrar por sector industrial</span>
+        <div class="mb-10 text-center">
             <div id="category-filters" class="flex flex-wrap justify-center gap-2">
-                <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
+                <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-blue-900 text-white cursor-pointer shadow-xs">
                     Todos
                 </button>
             </div>
         </div>
 
-        <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium">
-            Sincronizando con Google Sheets en tiempo real...
+        <div id="loading" class="text-center text-slate-400 py-12 text-sm font-medium animate-pulse">
+            Cargando datos del ecosistema...
         </div>
 
         <div id="directorio" class="card-grid hidden">
             </div>
     </main>
 
-    <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-20 bg-white">
-        <p class="text-xs tracking-wider uppercase font-medium">&copy; 2026 CANACINTRA Jóvenes. Sincronización Automatizada.</p>
-    </footer>
-
     <script>
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_6OHmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
+        // ID de tu documento real validado
+        const SPREADSHEET_ID = '1Dr5johlcPcBbh3h2X5DmigyhyPhoOHWYW-eB1fqclpk';
+        const GID = '1329152889';
+        
+        // Endpoint alternativo de Google (Mucho más rápido y estable que el CSV)
+        const URL_API = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
+
         let todosLosEmprendimientos = [];
         let categoriaActual = 'TODOS';
 
         async function cargarDirectorio() {
             try {
-                const response = await fetch(SHEET_CSV_URL);
-                if (!response.ok) throw new Error(`Error de red HTTP: ${response.status} ${response.statusText}`);
+                const response = await fetch(URL_API);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
-                const data = await response.text();
-                if (!data || data.trim().length === 0) throw new Error('El archivo CSV llegó vacío.');
-
-                const filas = data.replace(/\r/g, '').split('\n').slice(1);
+                const textoPlano = await response.text();
+                
+                // Limpiar el cascarón de texto que envuelve al JSON de Google
+                const jsonParseable = textoPlano.substring(textoPlano.indexOf("{"), textoPlano.lastIndexOf("}") + 1);
+                const datosData = JSON.parse(jsonParseable);
+                
+                const filas = datosData.table.rows;
                 const categoriasUnicas = new Set();
                 todosLosEmprendimientos = [];
 
-                filas.forEach((fila, index) => {
-                    if (!fila.trim()) return;
-                    const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    if (columnas.length < 6) return;
+                filas.forEach(fila => {
+                    const c = fila.c;
+                    if (!c || c.length < 4) return;
 
-                    let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
-
-                    // 🛠️ CORREGIDO: Imagen ejecutiva real de Unsplash de respaldo en vez del link de Sheets
+                    // Mapeo seguro directo por posición de celda (v es el valor limpio de la celda)
+                    let rawLogo = c[6]?.v || '';
                     if (!rawLogo || rawLogo.length < 10) {
                         rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
@@ -106,19 +98,17 @@
                     }
 
                     const item = {
-                        socio: columnas[2]?.replace(/"/g, '').trim() || 'Socio Activo',       
-                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Comercial',     
-                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General', 
-                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción corporativa registrada.',  
-                        logo: rawLogo, 
-                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'    
+                        socio: c[2]?.v || 'Socio Activo',
+                        empresa: c[3]?.v || 'Empresa Local',
+                        giro: c[4]?.v || 'General',
+                        descripcion: c[5]?.v || 'Sin descripción disponible.',
+                        logo: rawLogo,
+                        contacto: c[7]?.v || '#'
                     };
 
                     todosLosEmprendimientos.push(item);
                     if(item.giro) categoriasUnicas.add(item.giro);
                 });
-
-                if (todosLosEmprendimientos.length === 0) throw new Error('No se encontraron registros válidos.');
 
                 generarBotonesFiltros(categoriasUnicas);
                 renderizarTarjetas(todosLosEmprendimientos);
@@ -127,25 +117,24 @@
                 document.getElementById('directorio').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error interno detectado:', error);
+                console.error("Falla:", error);
                 document.getElementById('loading').innerHTML = `
-                    <div class="text-red-700 bg-red-50 p-6 rounded-xl inline-block border border-red-200 text-left max-w-lg shadow-xs">
-                        <h3 class="font-bold text-sm mb-1 uppercase tracking-wider text-red-800">⚠️ Diagnóstico de Sincronización</h3>
-                        <p class="text-xs font-mono bg-white p-3 border border-red-100 rounded-md my-2 text-red-600 font-bold">${error.message}</p>
-                        <p class="text-[11px] text-slate-500">Asegúrate de limpiar el caché del navegador si el problema persiste.</p>
+                    <div class="bg-red-50 text-red-700 p-4 rounded-xl inline-block border border-red-100 text-xs font-mono">
+                        <strong>Fallo de sincronización:</strong> ${error.message}<br>
+                        <span class="text-slate-400 text-[10px]">Revisa que el Sheets siga compartido como "Cualquier persona con el enlace puede ver".</span>
                     </div>`;
             }
         }
 
         function generarBotonesFiltros(categorias) {
             const contenedor = document.getElementById('category-filters');
-            const botonesExistentes = contenedor.querySelectorAll('.filter-btn:not(#btn-todos)');
-            botonesExistentes.forEach(btn => btn.remove());
+            const existentes = contenedor.querySelectorAll('.filter-btn:not(#btn-todos)');
+            existentes.forEach(b => b.remove());
 
             categorias.forEach(cat => {
                 if(!cat) return;
                 const btn = document.createElement('button');
-                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
+                btn.className = "filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
                 btn.innerText = cat;
                 btn.onclick = () => filtrarCategoria(cat, btn);
                 contenedor.appendChild(btn);
@@ -156,73 +145,60 @@
             const contenedor = document.getElementById('directorio');
             contenedor.innerHTML = '';
 
-            if (items.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-sm">No se encontraron emprendimientos que coincidan.</div>';
+            if(items.length === 0) {
+                contenedor.innerHTML = '<div class="col-span-full text-center py-6 text-slate-400 text-xs">Sin resultados.</div>';
                 return;
             }
 
             items.forEach(item => {
-                const html = `
-                    <div class="bg-white rounded-2xl overflow-hidden border border-slate-200/70 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-blue-200">
+                contenedor.innerHTML += `
+                    <div class="bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs">
                         <div>
-                            <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
-                                <img class="w-full h-full object-contain p-6" src="${item.logo}" alt="Logo corporativo" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
+                            <div class="h-40 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+                                <img class="w-full h-full object-contain p-4" src="${item.logo}" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
                             </div>
-                            <div class="p-6">
-                                <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-blue-50 text-blue-700 mb-3 border border-blue-100">
-                                    ${item.giro}
-                                </span>
-                                <h2 class="text-xl font-bold text-slate-900 mb-0.5 tracking-tight truncate">${item.empresa}</h2>
-                                <p class="text-xs text-slate-400 mb-4 font-medium">Socio: <span class="text-slate-600">${item.socio}</span></p>
-                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description font-normal">${item.descripcion}</p>
+                            <div class="p-5">
+                                <span class="inline-block px-2 py-0.5 text-[9px] font-bold uppercase rounded-md bg-blue-50 text-blue-700 mb-2 border border-blue-100">${item.giro}</span>
+                                <h2 class="text-lg font-bold text-slate-900 truncate mb-0.5">${item.empresa}</h2>
+                                <p class="text-[11px] text-slate-400 mb-3">Socio: <span class="text-slate-600 font-medium">${item.socio}</span></p>
+                                <p class="text-slate-600 text-xs leading-relaxed line-clamp-description">${item.descripcion}</p>
                             </div>
                         </div>
-                        <div class="p-6 pt-0">
-                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-200 text-xs uppercase tracking-wide shadow-xs">
-                                Enlace Comercial / Redes
+                        <div class="p-5 pt-0">
+                            <a href="${item.contacto}" target="_blank" class="block text-center w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-2 px-3 rounded-lg transition-all text-xs uppercase tracking-wide">
+                                Contactar
                             </a>
                         </div>
                     </div>
                 `;
-                contenedor.innerHTML += html;
             });
         }
 
-        function filtrarCategoria(categoria, botonSeleccionado) {
+        function filtrarCategoria(categoria, boton) {
             categoriaActual = categoria;
-            
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.className = "filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer";
             });
-            
-            if(botonSeleccionado) {
-                botonSeleccionado.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+            if(boton) {
+                boton.className = "filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-blue-900 text-white cursor-pointer shadow-xs";
             } else {
-                document.getElementById('btn-todos').className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                document.getElementById('btn-todos').className = "filter-btn px-4 py-1.5 text-xs uppercase font-bold rounded-lg bg-blue-900 text-white cursor-pointer shadow-xs";
             }
-
-            ejecutarFiltroCombinado();
+            ejecutarFiltro();
         }
 
-        function buscarEmpresa() {
-            ejecutarFiltroCombinado();
-        }
+        function buscarEmpresa() { ejecutarFiltro(); }
 
-        function ejecutarFiltroCombinado() {
-            const textoBusqueda = document.getElementById('search-input').value.toLowerCase().trim();
-            
+        function ejecutarFiltro() {
+            const busqueda = document.getElementById('search-input').value.toLowerCase().trim();
             let filtrados = todosLosEmprendimientos;
 
-            // 1. Filtrar por Categoría
             if (categoriaActual !== 'TODOS') {
-                filtrados = filtrados.filter(item => item.giro === categoriaActual);
+                filtrados = filtrados.filter(i => i.giro === categoriaActual);
             }
-
-            // 2. Filtrar por Texto de búsqueda
-            if (textoBusqueda !== '') {
-                filtrados = filtrados.filter(item => item.empresa.toLowerCase().includes(textoBusqueda));
+            if (busqueda !== '') {
+                filtrados = filtrados.filter(i => i.empresa.toLowerCase().includes(busqueda));
             }
-
             renderizarTarjetas(filtrados);
         }
 
