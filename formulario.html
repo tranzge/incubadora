@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portafolio de Innovación | CANACINTRA Jóvenes</title>
-    <!-- Tailwind CSS v4 -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .card-grid {
@@ -23,11 +22,9 @@
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen">
 
-    <!-- ENCABEZADO CORPORATIVO LIMPIO -->
     <header class="bg-white border-b border-slate-200/80 py-16 px-4 text-center shadow-xs">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
             
-            <!-- Logo Minimalista CANACINTRA -->
             <div class="mb-4 flex items-center space-x-3 text-blue-900">
                 <svg class="h-10 w-auto fill-current text-blue-900" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
                     <path d="M20,10 L45,10 L55,30 L45,50 L20,50 L10,30 Z M27,18 L38,18 L43,30 L38,42 L27,42 L22,30 Z" />
@@ -48,28 +45,27 @@
         </div>
     </header>
 
-    <!-- CONTENEDOR DE FILTROS Y TARJETAS -->
     <main class="max-w-7xl mx-auto px-4 py-12">
         
-        <!-- FILTROS POR SECTOR -->
+        <div class="max-w-md mx-auto mb-10">
+            <input type="text" id="search-input" oninput="buscarEmpresa()" placeholder="🔍 Buscar por nombre de empresa..." class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-900/20 focus:border-blue-900 transition-all text-sm">
+        </div>
+
         <div class="mb-12 text-center">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Filtrar por sector industrial</span>
             <div id="category-filters" class="flex flex-wrap justify-center gap-2">
-                <button onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
+                <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer">
                     Todos
                 </button>
             </div>
         </div>
 
-        <!-- INDICADOR DE CARGA / ERROR DE DIAGNÓSTICO -->
         <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium">
             Sincronizando con Google Sheets en tiempo real...
         </div>
 
-        <!-- GALERÍA -->
         <div id="directorio" class="card-grid hidden">
-            <!-- JS inyectará las tarjetas aquí -->
-        </div>
+            </div>
     </main>
 
     <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-20 bg-white">
@@ -77,9 +73,9 @@
     </footer>
 
     <script>
-        // Tu enlace verificado con output=csv al final
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_6OHmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
         let todosLosEmprendimientos = [];
+        let categoriaActual = 'TODOS';
 
         async function cargarDirectorio() {
             try {
@@ -87,7 +83,7 @@
                 if (!response.ok) throw new Error(`Error de red HTTP: ${response.status} ${response.statusText}`);
                 
                 const data = await response.text();
-                if (!data || data.trim().length === 0) throw new Error('El archivo CSV llegó completamente vacío.');
+                if (!data || data.trim().length === 0) throw new Error('El archivo CSV llegó vacío.');
 
                 const filas = data.replace(/\r/g, '').split('\n').slice(1);
                 const categoriasUnicas = new Set();
@@ -97,14 +93,11 @@
                     if (!fila.trim()) return;
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // Si el archivo viene con menos columnas de las necesarias, avisamos
-                    if (columnas.length < 5) {
-                        console.warn(`Fila ${index + 2} ignorada por falta de columnas.`);
-                        return;
-                    }
+                    if (columnas.length < 6) return;
 
                     let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
 
+                    // 🛠️ CORREGIDO: Imagen ejecutiva real de Unsplash de respaldo en vez del link de Sheets
                     if (!rawLogo || rawLogo.length < 10) {
                         rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
@@ -125,7 +118,7 @@
                     if(item.giro) categoriasUnicas.add(item.giro);
                 });
 
-                if (todosLosEmprendimientos.length === 0) throw new Error('No se pudo procesar ningún emprendimiento válido de las filas del Sheets.');
+                if (todosLosEmprendimientos.length === 0) throw new Error('No se encontraron registros válidos.');
 
                 generarBotonesFiltros(categoriasUnicas);
                 renderizarTarjetas(todosLosEmprendimientos);
@@ -135,19 +128,18 @@
 
             } catch (error) {
                 console.error('Error interno detectado:', error);
-                // 💡 PINTA EL ERROR EXACTO EN LA PÁGINA PARA SABER QUÉ PASA
                 document.getElementById('loading').innerHTML = `
                     <div class="text-red-700 bg-red-50 p-6 rounded-xl inline-block border border-red-200 text-left max-w-lg shadow-xs">
                         <h3 class="font-bold text-sm mb-1 uppercase tracking-wider text-red-800">⚠️ Diagnóstico de Sincronización</h3>
                         <p class="text-xs font-mono bg-white p-3 border border-red-100 rounded-md my-2 text-red-600 font-bold">${error.message}</p>
-                        <p class="text-[11px] text-slate-500">Si dice "Failed to fetch", el enlace de Google está mal copiado o la hoja no es accesible públicamente.</p>
+                        <p class="text-[11px] text-slate-500">Asegúrate de limpiar el caché del navegador si el problema persiste.</p>
                     </div>`;
             }
         }
 
         function generarBotonesFiltros(categorias) {
             const contenedor = document.getElementById('category-filters');
-            const botonesExistentes = contenedor.querySelectorAll('.filter-btn:not([onclick*="TODOS"])');
+            const botonesExistentes = contenedor.querySelectorAll('.filter-btn:not(#btn-todos)');
             botonesExistentes.forEach(btn => btn.remove());
 
             categorias.forEach(cat => {
@@ -163,6 +155,11 @@
         function renderizarTarjetas(items) {
             const contenedor = document.getElementById('directorio');
             contenedor.innerHTML = '';
+
+            if (items.length === 0) {
+                contenedor.innerHTML = '<div class="col-span-full text-center py-12 text-slate-400 text-sm">No se encontraron emprendimientos que coincidan.</div>';
+                return;
+            }
 
             items.forEach(item => {
                 const html = `
@@ -192,6 +189,8 @@
         }
 
         function filtrarCategoria(categoria, botonSeleccionado) {
+            categoriaActual = categoria;
+            
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer shadow-2xs";
             });
@@ -199,15 +198,32 @@
             if(botonSeleccionado) {
                 botonSeleccionado.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
             } else {
-                document.getElementById('category-filters').firstElementChild.className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
+                document.getElementById('btn-todos').className = "filter-btn px-5 py-2 text-xs uppercase font-bold tracking-wider rounded-lg bg-blue-900 text-white shadow-sm transition-all cursor-pointer";
             }
 
-            if (categoria === 'TODOS') {
-                renderizarTarjetas(todosLosEmprendimientos);
-            } else {
-                const filtrados = todosLosEmprendimientos.filter(item => item.giro === categoria);
-                renderizarTarjetas(filtrados);
+            ejecutarFiltroCombinado();
+        }
+
+        function buscarEmpresa() {
+            ejecutarFiltroCombinado();
+        }
+
+        function ejecutarFiltroCombinado() {
+            const textoBusqueda = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            let filtrados = todosLosEmprendimientos;
+
+            // 1. Filtrar por Categoría
+            if (categoriaActual !== 'TODOS') {
+                filtrados = filtrados.filter(item => item.giro === categoriaActual);
             }
+
+            // 2. Filtrar por Texto de búsqueda
+            if (textoBusqueda !== '') {
+                filtrados = filtrados.filter(item => item.empresa.toLowerCase().includes(textoBusqueda));
+            }
+
+            renderizarTarjetas(filtrados);
         }
 
         window.onload = cargarDirectorio;
