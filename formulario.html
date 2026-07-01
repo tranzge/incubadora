@@ -61,8 +61,8 @@
             </div>
         </div>
 
-        <!-- INDICADOR DE CARGA -->
-        <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium animate-pulse">
+        <!-- INDICADOR DE CARGA / ERROR DE DIAGNÓSTICO -->
+        <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium">
             Sincronizando con Google Sheets en tiempo real...
         </div>
 
@@ -77,28 +77,34 @@
     </footer>
 
     <script>
-        // URL real extraída de tu panel de publicación
+        // Tu enlace verificado con output=csv al final
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_6OHmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
         let todosLosEmprendimientos = [];
 
         async function cargarDirectorio() {
             try {
                 const response = await fetch(SHEET_CSV_URL);
-                if (!response.ok) throw new Error('Error en la descarga del CSV');
-                const data = await response.text();
+                if (!response.ok) throw new Error(`Error de red HTTP: ${response.status} ${response.statusText}`);
                 
+                const data = await response.text();
+                if (!data || data.trim().length === 0) throw new Error('El archivo CSV llegó completamente vacío.');
+
                 const filas = data.replace(/\r/g, '').split('\n').slice(1);
                 const categoriasUnicas = new Set();
                 todosLosEmprendimientos = [];
 
-                filas.forEach(fila => {
+                filas.forEach((fila, index) => {
                     if (!fila.trim()) return;
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 6) return; 
+                    
+                    // Si el archivo viene con menos columnas de las necesarias, avisamos
+                    if (columnas.length < 5) {
+                        console.warn(`Fila ${index + 2} ignorada por falta de columnas.`);
+                        return;
+                    }
 
                     let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
 
-                    // Imagen corporativa de respaldo si el campo está vacío
                     if (!rawLogo || rawLogo.length < 10) {
                         rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
                     } else if (rawLogo.includes('drive.google.com')) {
@@ -119,6 +125,8 @@
                     if(item.giro) categoriasUnicas.add(item.giro);
                 });
 
+                if (todosLosEmprendimientos.length === 0) throw new Error('No se pudo procesar ningún emprendimiento válido de las filas del Sheets.');
+
                 generarBotonesFiltros(categoriasUnicas);
                 renderizarTarjetas(todosLosEmprendimientos);
 
@@ -126,10 +134,13 @@
                 document.getElementById('directorio').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error detectado:', error);
+                console.error('Error interno detectado:', error);
+                // 💡 PINTA EL ERROR EXACTO EN LA PÁGINA PARA SABER QUÉ PASA
                 document.getElementById('loading').innerHTML = `
-                    <div class="text-red-700 bg-red-50 p-4 rounded-xl inline-block border border-red-200 text-xs font-mono">
-                        <strong>Fallo de sincronización activo.</strong> Verifique que la constante SHEET_CSV_URL mantenga las comillas y la estructura de publicación intacta.
+                    <div class="text-red-700 bg-red-50 p-6 rounded-xl inline-block border border-red-200 text-left max-w-lg shadow-xs">
+                        <h3 class="font-bold text-sm mb-1 uppercase tracking-wider text-red-800">⚠️ Diagnóstico de Sincronización</h3>
+                        <p class="text-xs font-mono bg-white p-3 border border-red-100 rounded-md my-2 text-red-600 font-bold">${error.message}</p>
+                        <p class="text-[11px] text-slate-500">Si dice "Failed to fetch", el enlace de Google está mal copiado o la hoja no es accesible públicamente.</p>
                     </div>`;
             }
         }
@@ -152,11 +163,6 @@
         function renderizarTarjetas(items) {
             const contenedor = document.getElementById('directorio');
             contenedor.innerHTML = '';
-
-            if(items.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full text-center py-8 text-slate-400">No hay registros en esta categoría.</div>';
-                return;
-            }
 
             items.forEach(item => {
                 const html = `
