@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portafolio de Innovación | Jóvenes CANACINTRA Cajeme</title>
-    <!-- Tailwind CSS v4 para un rendimiento y estilizado de última generación -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Tipografía única, corporativa y humana -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --brand-navy: #1a2358;
@@ -40,14 +38,12 @@
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased min-h-screen selection:bg-[var(--brand-navy)]/10 selection:text-[var(--brand-navy)]">
 
-    <!-- ENCABEZADO INSTITUCIONAL -->
     <header class="relative bg-white pt-10 pb-8 px-4 text-center border-b border-slate-100">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-50/40 to-white pointer-events-none"></div>
 
         <div class="max-w-4xl mx-auto flex flex-col items-center relative z-10">
-            <!-- Identidad: Logo + Nombre de la delegación -->
             <div class="mb-6 flex flex-col items-center text-center gap-3 sm:flex-row sm:text-left sm:gap-4">
-                <img src="cropped-canacintra.png" class="h-14 w-auto" alt="CANACINTRA">
+                <img src="cropped-canacintra.png" class="h-14 w-auto" alt="CANACINTRA" onerror="this.src='https://via.placeholder.com/150?text=CANACINTRA'">
                 <div>
                     <p class="text-xl md:text-2xl font-extrabold tracking-tight leading-none">
                         <span class="text-[var(--brand-red)]">Jóvenes</span>
@@ -68,10 +64,8 @@
         </div>
     </header>
 
-    <!-- ÁREA DE CONTROL INTERACTIVA -->
     <main class="max-w-7xl mx-auto px-6 py-16">
 
-        <!-- BUSCADOR -->
         <div class="max-w-xl mx-auto mb-12">
             <div class="relative group">
                 <div class="absolute inset-0 bg-[var(--brand-navy)]/5 rounded-2xl blur-md opacity-0 group-focus-within:opacity-100 transition-opacity duration-300"></div>
@@ -82,7 +76,6 @@
             </div>
         </div>
 
-        <!-- FILTROS DE CATEGORÍA -->
         <div class="mb-14 text-center">
             <div id="category-filters" class="flex flex-wrap justify-center gap-2.5">
                 <button id="btn-todos" onclick="filtrarCategoria('TODOS')" class="filter-btn px-5 py-2.5 text-sm font-semibold rounded-full bg-[var(--brand-navy)] text-white shadow-sm transition-all duration-200 cursor-pointer">
@@ -91,72 +84,94 @@
             </div>
         </div>
 
-        <!-- INDICADOR DE CARGA -->
         <div id="loading" class="text-center text-slate-400 py-20 text-sm font-medium">
-            Cargando el directorio de empresas en tiempo real...
+            Conectando con el directorio en vivo...
         </div>
 
-        <!-- GALERÍA ESTILO BENTO GRID -->
         <div id="directorio" class="bento-grid hidden">
-            <!-- Las tarjetas se inyectan dinámicamente aquí -->
-        </div>
+            </div>
     </main>
 
-    <!-- PIE DE PÁGINA -->
     <footer class="text-center py-12 text-slate-400 border-t border-slate-200/60 mt-28 bg-white">
         <p class="text-xs font-medium text-slate-400">&copy; 2026 Jóvenes CANACINTRA Cajeme. Todos los derechos reservados.</p>
     </footer>
 
     <script>
-        // Enlace CSV recuperado de la configuración del entorno tranzge para el formulario activo
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ32z5XnS7bZ0p_M_gTrXvT2bZ71XU8D_kL90P8N5M4U6V7X_O7z8w4M-2M9L0Z_V7N7N8M4U6V7X_O/pub?output=csv';
+        // Tu enlace real y verificado de Google Sheets publicado como CSV
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSbd27a8zjVW3OcJNgX_QB_gRGMMD8qqPxHCQX9Pc79kmvPD4Oy4vgPIOas7ITSjPT_60HmYUSYzWrj/pub?gid=1329152889&single=true&output=csv';
 
         let todosLosEmprendimientos = [];
         let categoriaActual = 'TODOS';
 
         async function cargarDirectorio() {
+            const elLoading = document.getElementById('loading');
             try {
-                // Forzar la destrucción del caché con la marca de tiempo exacta del sistema
+                // Truco definitivo rompe-caché acoplado a tu URL
                 const response = await fetch(`${SHEET_CSV_URL}&t=${new Date().getTime()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP status error: ${response.status}`);
+                }
+
                 const data = await response.text();
                 
-                const filas = data.split('\n').slice(1);
+                // Dividimos el archivo plano por renglones y removemos la fila de encabezado
+                const filas = data.split(/\r?\n/).slice(1);
                 const categoriasUnicas = new Set();
                 todosLosEmprendimientos = [];
 
-                filas.forEach(fila => {
+                filas.forEach((fila, index) => {
+                    if (!fila.trim()) return; 
+
+                    // Separador por comas avanzado que ignora comas dentro de comillas
                     const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 5) return; 
+                    
+                    if (columnas.length >= 6) {
+                        const item = {
+                            // Mapeo calibrado exactamente al orden de tu Sheets real:
+                            empresa: columnas[2]?.replace(/"/g, '').trim() || 'Empresa sin nombre',
+                            socio: columnas[3]?.replace(/"/g, '').trim() || 'Socio Anónimo',
+                            giro: columnas[4]?.replace(/"/g, '').trim() || 'General',
+                            descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',
+                            logo: columnas[6]?.replace(/"/g, '').trim() || '',
+                            contacto: columnas[7]?.replace(/"/g, '').trim() || '#'
+                        };
 
-                    // Alineación exacta con el orden de salida del Google Forms de "Directorio de Emprendedores"
-                    const item = {
-                        empresa: columnas[2]?.replace(/"/g, '').trim() || 'Empresa sin nombre',
-                        socio: columnas[3]?.replace(/"/g, '').trim() || 'Socio Anónimo',
-                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General',
-                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',
-                        logo: columnas[6]?.replace(/"/g, '').trim() || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
-                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'
-                    };
+                        // Conversor de enlaces para fotos/logos en Google Drive
+                        if (item.logo.includes('drive.google.com')) {
+                            const fileId = item.logo.match(/id=([^&]+)/) || item.logo.match(/\/d\/([^/]+)/);
+                            if (fileId) {
+                                item.logo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
+                            }
+                        }
 
-                    // Intérprete de enlaces de almacenamiento de imágenes en Google Drive
-                    if (item.logo.includes('drive.google.com')) {
-                        const fileId = item.logo.match(/id=([^&]+)/) || item.logo.match(/\/d\/([^/]+)/);
-                        if (fileId) item.logo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
+                        todosLosEmprendimientos.push(item);
+                        if(item.giro) categoriasUnicas.add(item.giro);
                     }
-
-                    todosLosEmprendimientos.push(item);
-                    if(item.giro) categoriasUnicas.add(item.giro);
                 });
+
+                if (todosLosEmprendimientos.length === 0) {
+                    elLoading.innerHTML = `<span class="text-amber-600 block font-semibold mb-2">Conexión exitosa, pero la hoja no tiene registros válidos aún.</span>`;
+                    return;
+                }
 
                 generarBotonesFiltros(categoriasUnicas);
                 renderizarTarjetas(todosLosEmprendimientos);
 
-                document.getElementById('loading').classList.add('hidden');
+                elLoading.classList.add('hidden');
                 document.getElementById('directorio').classList.remove('hidden');
 
             } catch (error) {
-                console.error('Error en sincronización dinámica:', error);
-                document.getElementById('loading').innerText = 'Fallo al sincronizar con la base de datos viva de Google Sheets.';
+                console.error('Error:', error);
+                elLoading.innerHTML = `
+                    <div class="max-w-md mx-auto p-6 bg-red-50 rounded-2xl border border-red-100 text-left animate-fade-in">
+                        <p class="text-red-700 font-bold text-base mb-2">Error de Comunicación</p>
+                        <p class="text-xs text-red-600/80 leading-relaxed mb-4">No se pudieron leer los datos del Sheets. Si estás probando localmente, recuerda que debes subirlo a GitHub para evitar bloqueos del navegador.</p>
+                        <div class="bg-white border border-red-200/60 rounded-xl p-3 text-[11px] font-mono text-red-800 break-all">
+                            Código: ${error.message}
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -180,16 +195,19 @@
             contenedor.innerHTML = '';
 
             if(items.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full text-center py-16 text-slate-400 text-sm font-medium animate-fade-in">No se encontraron emprendimientos con los criterios de búsqueda actuales.</div>';
+                contenedor.innerHTML = '<div class="col-span-full text-center py-16 text-slate-400 text-sm font-medium animate-fade-in">No se encontraron emprendimientos.</div>';
                 return;
             }
 
             items.forEach(item => {
+                const fallbackLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
+                const imagenFinal = item.logo ? item.logo : fallbackLogo;
+
                 const html = `
                     <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/70 hover:border-[var(--brand-navy)]/20 group animate-fade-in">
                         <div>
                             <div class="h-44 w-full bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
-                                <img class="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105" src="${item.logo}" alt="Corporate Identity" onerror="this.src='https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'">
+                                <img class="w-full h-full object-contain p-8 transition-transform duration-500 group-hover:scale-105" src="${imagenFinal}" alt="Logo" onerror="this.src='${fallbackLogo}'">
                             </div>
                             <div class="p-7">
                                 <span class="inline-block px-3 py-1 text-[11px] font-semibold uppercase tracking-wide rounded-full bg-[var(--brand-navy)]/6 text-[var(--brand-navy)] mb-4">
@@ -249,7 +267,6 @@
             renderizarTarjetas(filtrados);
         }
 
-        // Acceso por teclado simplificado
         window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
