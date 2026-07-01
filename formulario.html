@@ -167,6 +167,8 @@
                 }
 
                 generarBotonesFiltros(categoriasUnicas);
+                // 🎲 Algoritmo para ordenar de forma aleatoria los emprendimientos
+                todosLosEmprendimientos.sort(() => Math.random() - 0.5);
                 renderizarTarjetas(todosLosEmprendimientos);
 
                 elLoading.classList.add('hidden');
