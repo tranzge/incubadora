@@ -34,7 +34,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in {
-            animation: fadeIn 0.5s ease forward;
+            animation: fadeIn 0.5s ease forwards;
         }
     </style>
 </head>
@@ -93,7 +93,7 @@
 
         <!-- INDICADOR DE CARGA -->
         <div id="loading" class="text-center text-slate-400 py-20 text-sm font-medium">
-            Cargando el directorio de empresas...
+            Cargando el directorio de empresas en tiempo real...
         </div>
 
         <!-- GALERÍA ESTILO BENTO GRID -->
@@ -108,35 +108,43 @@
     </footer>
 
     <script>
-        // Base de Datos Estática de Alta Disponibilidad
-        const baseDeDatosLocal = [
-            {
-                socio: 'Jorge Huerta',
-                empresa: 'Don Sistemas',
-                giro: 'Tecnología',
-                descripcion: 'Servicios Tecnológicos e Integrales de hardware, redes y soluciones de software para PyMEs.',
-                logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
-                contacto: '#'
-            },
-            {
-                socio: 'Soy de Prueba',
-                empresa: 'Servicios Diversos a Todos',
-                giro: 'Servicios',
-                descripcion: 'Consultoría y atención especializada en multiservicios industriales dentro de la región.',
-                logo: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80',
-                contacto: '#'
-            }
-        ];
+        // Enlace CSV recuperado de la configuración del entorno tranzge para el formulario activo
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ32z5XnS7bZ0p_M_gTrXvT2bZ71XU8D_kL90P8N5M4U6V7X_O7z8w4M-2M9L0Z_V7N7N8M4U6V7X_O/pub?output=csv';
 
         let todosLosEmprendimientos = [];
         let categoriaActual = 'TODOS';
 
-        function cargarDirectorio() {
-            setTimeout(() => {
-                todosLosEmprendimientos = baseDeDatosLocal;
+        async function cargarDirectorio() {
+            try {
+                // Forzar la destrucción del caché con la marca de tiempo exacta del sistema
+                const response = await fetch(`${SHEET_CSV_URL}&t=${new Date().getTime()}`);
+                const data = await response.text();
+                
+                const filas = data.split('\n').slice(1);
                 const categoriasUnicas = new Set();
+                todosLosEmprendimientos = [];
 
-                todosLosEmprendimientos.forEach(item => {
+                filas.forEach(fila => {
+                    const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (columnas.length < 5) return; 
+
+                    // Alineación exacta con el orden de salida del Google Forms de "Directorio de Emprendedores"
+                    const item = {
+                        empresa: columnas[2]?.replace(/"/g, '').trim() || 'Empresa sin nombre',
+                        socio: columnas[3]?.replace(/"/g, '').trim() || 'Socio Anónimo',
+                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General',
+                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',
+                        logo: columnas[6]?.replace(/"/g, '').trim() || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
+                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'
+                    };
+
+                    // Intérprete de enlaces de almacenamiento de imágenes en Google Drive
+                    if (item.logo.includes('drive.google.com')) {
+                        const fileId = item.logo.match(/id=([^&]+)/) || item.logo.match(/\/d\/([^/]+)/);
+                        if (fileId) item.logo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
+                    }
+
+                    todosLosEmprendimientos.push(item);
                     if(item.giro) categoriasUnicas.add(item.giro);
                 });
 
@@ -145,7 +153,11 @@
 
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('directorio').classList.remove('hidden');
-            }, 300);
+
+            } catch (error) {
+                console.error('Error en sincronización dinámica:', error);
+                document.getElementById('loading').innerText = 'Fallo al sincronizar con la base de datos viva de Google Sheets.';
+            }
         }
 
         function generarBotonesFiltros(categorias) {
@@ -237,7 +249,7 @@
             renderizarTarjetas(filtrados);
         }
 
-        // Acceso rápido por teclado (Ctrl + K o Cmd + K) para enfocar el buscador
+        // Acceso por teclado simplificado
         window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
