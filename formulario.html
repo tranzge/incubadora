@@ -61,7 +61,7 @@
         </div>
 
         <div id="loading" class="text-center text-slate-400 py-16 text-sm font-medium animate-pulse">
-            Sincronizando con Google Sheets en tiempo real...
+            Cargando ecosistema local...
         </div>
 
         <div id="directorio" class="card-grid hidden">
@@ -69,52 +69,41 @@
     </main>
 
     <footer class="text-center py-8 text-slate-400 border-t border-slate-200 mt-20 bg-white">
-        <p class="text-xs tracking-wider uppercase font-medium">&copy; 2026 CANACINTRA Jóvenes. Sincronización Automatizada.</p>
+        <p class="text-xs tracking-wider uppercase font-medium">&copy; 2026 CANACINTRA Jóvenes. Portafolio Optimizado Integrado.</p>
     </footer>
 
     <script>
-        // Enlace alternativo público nativo que no se bloquea con las restricciones de cuenta
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Dr5johlcPcBbh3h2X5DmigyhyPhoOHWYW-eB1fqclpk/pub?gid=1329152889&single=true&output=csv';
+        // 💾 BASE DE DATOS INYECTADA DIRECTAMENTE (Plan C - Blindado de Workspace)
+        // Puedes agregar más registros aquí duplicando un bloque { ... } separado por comas
+        const baseDeDatosLocal = [
+            {
+                socio: 'Jorge Huerta',
+                empresa: 'Don Sistemas',
+                giro: 'Tecnología',
+                descripcion: 'Servicios Tecnológicos e Integrales de hardware, redes y soluciones de software para PyMEs.',
+                logo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80',
+                contacto: '#'
+            },
+            {
+                socio: 'Soy de Prueba',
+                empresa: 'Servicios Diversos a Todos',
+                giro: 'Servicios',
+                descripcion: 'Consultoría y atención especializada en multiservicios industriales dentro de la región.',
+                logo: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80',
+                contacto: '#'
+            }
+        ];
+
         let todosLosEmprendimientos = [];
         let categoriaActual = 'TODOS';
 
-        async function cargarDirectorio() {
-            try {
-                const response = await fetch(SHEET_CSV_URL);
-                if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-                
-                const data = await response.text();
-                if (!data || data.trim().length === 0) throw new Error('El archivo llegó vacío.');
-
-                const filas = data.replace(/\r/g, '').split('\n').slice(1);
+        function cargarDirectorio() {
+            // Simulamos una carga de red rápida para mantener la experiencia premium
+            setTimeout(() => {
+                todosLosEmprendimientos = baseDeDatosLocal;
                 const categoriasUnicas = new Set();
-                todosLosEmprendimientos = [];
 
-                filas.forEach(fila => {
-                    if (!fila.trim()) return;
-                    const columnas = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if (columnas.length < 6) return;
-
-                    let rawLogo = columnas[6]?.replace(/"/g, '').trim() || '';
-                    
-                    // Fallback visual con imagen de Unsplash corporativa si no hay logo
-                    if (!rawLogo || rawLogo.length < 10) {
-                        rawLogo = 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80';
-                    } else if (rawLogo.includes('drive.google.com')) {
-                        const fileId = rawLogo.match(/id=([^&]+)/) || rawLogo.match(/\/d\/([^/]+)/);
-                        if (fileId) rawLogo = `https://docs.google.com/uc?export=view&id=${fileId[1]}`;
-                    }
-
-                    const item = {
-                        socio: columnas[2]?.replace(/"/g, '').trim() || 'Socio Activo',
-                        empresa: columnas[3]?.replace(/"/g, '').trim() || 'Empresa Local',
-                        giro: columnas[4]?.replace(/"/g, '').trim() || 'General',
-                        descripcion: columnas[5]?.replace(/"/g, '').trim() || 'Sin descripción disponible.',
-                        logo: rawLogo,
-                        contacto: columnas[7]?.replace(/"/g, '').trim() || '#'
-                    };
-
-                    todosLosEmprendimientos.push(item);
+                todosLosEmprendimientos.forEach(item => {
                     if(item.giro) categoriasUnicas.add(item.giro);
                 });
 
@@ -123,14 +112,7 @@
 
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('directorio').classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Falla:", error);
-                document.getElementById('loading').innerHTML = `
-                    <div class="bg-red-50 text-red-700 p-4 rounded-xl inline-block border border-red-100 text-xs font-mono">
-                        <strong>Fallo de sincronización:</strong> ${error.message}
-                    </div>`;
-            }
+            }, 400);
         }
 
         function generarBotonesFiltros(categorias) {
